@@ -1,7 +1,10 @@
 #!/bin/bash
 
+#caminho para o arquivo temporário de sessão
 TEMP_SESSION_FILE="/tmp/git_users_manager_session"
-SESSION_TIMEOUT=300 # Tempo limite em segundos (5 minutos)
+
+# Tempo limite em segundos (5 minutos)
+SESSION_TIMEOUT=300 
 
 # Caminho para o arquivo de configuração
 CONFIG_FILE="$HOME/.git_users.conf"
@@ -14,6 +17,7 @@ ENCRYPTED_CREDENTIALS_FILE="$HOME/.git-credentials.enc"
 # Senha para criptografia (inicialmente configurada)
 ENCRYPTION_KEY=""
 
+# Função para salvar a senha de sessão
 function save_session {
     local password=$1
     echo "$(date +%s) $password" > "$TEMP_SESSION_FILE"
@@ -49,6 +53,7 @@ function decrypt_file {
     fi
 }
 
+# Função para carregar a senha de sessão
 function load_session {
     if [[ -f "$TEMP_SESSION_FILE" ]]; then
         local current_time=$(date +%s)
@@ -85,19 +90,24 @@ function show_help {
 function add_user {
     local username=$1
 
+    # Verifica se o arquivo criptografado existe
     if [[ ! -s "$ENCRYPTED_CONFIG_FILE" ]]; then
         rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
     fi
 
+    # Verifica se o arquivo dcriptografado existe e se o arquivo de configuração está vazio
     if [[ (! -f "$ENCRYPTED_CONFIG_FILE") && (! -f "$CONFIG_FILE") ]]; then
 
+        # Cria o arquivo de configuração
         touch "$ENCRYPTED_CONFIG_FILE"
+
         # Solicita a senha de criptografia
         read -sp "Digite a senha a ser usada na criptografia dos seus dados: " password
         echo
         read -sp "Confirme a senha: " confirm_password
         echo
 
+        # Valida as senhas fornecidas
         if [[ "$password" != "$confirm_password" ]]; then
             echo "Erro: As senhas não coincidem."
             exit 1
@@ -140,6 +150,7 @@ function add_user {
 function alter_user {
     local username=$1
 
+    # Verifica se o arquivo criptografado existe ou está vazio
     if [[ ((! -f "$ENCRYPTED_CONFIG_FILE")) || (! -s "$ENCRYPTED_CONFIG_FILE") ]]; then
         rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
         echo "Nenhum usuário Git encontrado. Utilize o comando \"add user <username>\" para adicionar um novo usuário."
@@ -182,6 +193,7 @@ function show_user {
     local username=$(git config --global user.name)
     local email=$(git config --global user.email)
 
+    # Checa se o usuário Git está configurado corretamente
     if [[ -z "$username" || -z "$email" ]]; then
         echo "Nenhum usuário Git configurado no momento."
     else
@@ -194,6 +206,7 @@ function show_user {
 # Função para alterar a senha de criptografia
 function change_encryption_password {
 
+    # Verifica se o arquivo criptografado existe ou está vazio
     if [[ ((! -f "$ENCRYPTED_CONFIG_FILE")) || (! -s "$ENCRYPTED_CONFIG_FILE") ]]; then
         rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
         echo "Nenhum usuário Git encontrado. Utilize o comando \"add user <username>\" para adicionar um novo usuário."
@@ -208,6 +221,7 @@ function change_encryption_password {
     read -sp "Confirme a nova senha: " confirm_password
     echo
 
+    # Valida as senhas fornecidas
     if [[ "$new_password" != "$confirm_password" ]]; then
         echo "Erro: As senhas não coincidem."
         exit 1
@@ -225,7 +239,8 @@ function change_encryption_password {
 
 # Função para listar todos os usuários salvos
 function list_users {
-    # Verifica se o arquivo criptografado existe
+
+    # Verifica se o arquivo criptografado existe ou está vazio
     if [[ ((! -f "$ENCRYPTED_CONFIG_FILE")) || (! -s "$ENCRYPTED_CONFIG_FILE") ]]; then
         rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
         echo "Nenhuma senha configurada. Utilize o comando \"add user <username>\" para adicionar um novo usuário e configurar uma senha."
@@ -247,7 +262,7 @@ function list_users {
 function remove_user {
     local username=$1
 
-    # Verifica se o arquivo criptografado existe
+    # Verifica se o arquivo criptografado existe ou está vazio
     if [[ ((! -f "$ENCRYPTED_CONFIG_FILE")) || (! -s "$ENCRYPTED_CONFIG_FILE") ]]; then
         rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
         echo "Nenhum usuário Git encontrado. Utilize o comando \"add user <username>\" para adicionar um novo usuário."
