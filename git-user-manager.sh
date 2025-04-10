@@ -83,8 +83,9 @@ function show_help {
     echo "  add user <username>            - Adiciona um novo usuário Git."
     echo "  remove user <username>         - Remove um usuário Git."
     echo "  show user                      - Exibe o usuário Git configurado."
-    echo "  change password     - Altera a senha usada na criptografia."
+    echo "  change password                - Altera a senha usada na criptografia."
     echo "  list users                     - Lista todos os usuários salvos."
+    echo "  change pat <username>     - Altera o personal access token do usuário."
 }
 
 # Função para adicionar um novo usuário
@@ -147,8 +148,51 @@ function add_user {
     echo "Usuário '$username' adicionado com sucesso!"
 }
 
+function change_user_pat {
+
+    local username=$1
+
+    # Verifica se o arquivo criptografado existe ou está vazio
+    if [[ ((! -f "$ENCRYPTED_CONFIG_FILE")) || (! -s "$ENCRYPTED_CONFIG_FILE") ]]; then
+        rm -f "$ENCRYPTED_CONFIG_FILE"  # Remove o arquivo
+        echo "Nenhum usuário Git encontrado. Utilize o comando \"add user <username>\" para adicionar um novo usuário."
+        exit 1
+    fi
+
+    decrypt_file "$ENCRYPTED_CONFIG_FILE" "$CONFIG_FILE"
+
+    # Busca o e-mail e senha no arquivo de configuração
+    USER_INFO=$(grep "^$username " "$CONFIG_FILE")
+
+    if [[ -z "$USER_INFO" ]]; then
+        echo "Erro: Usuário '$username' não encontrado no arquivo de configuração."
+        encrypt_file "$CONFIG_FILE" "$ENCRYPTED_CONFIG_FILE"
+        exit 1
+    fi
+
+    # Extrai e-mail e senha
+    email=$(echo "$USER_INFO" | awk '{print $2}')
+
+    read -sp "Digite o novo Personal Acess Token(PAT) para o usuário $username: " password
+    echo
+
+    # Valida as informações fornecidas
+    if [[ -z "$password" ]]; then
+        echo "Erro: PAT inválido."
+        encrypt_file "$CONFIG_FILE" "$ENCRYPTED_CONFIG_FILE"
+        exit 1
+    fi
+
+    # Adiciona as informações ao arquivo de configuração
+    echo "$username $email $password" >> "$CONFIG_FILE"
+    encrypt_file "$CONFIG_FILE" "$ENCRYPTED_CONFIG_FILE"
+    echo "PAT do '$username' alterado com sucesso!"
+
+}
+
 # Função para alterar o usuário Git
 function alter_user {
+
     local username=$1
 
     # Verifica se o arquivo criptografado existe ou está vazio
@@ -341,6 +385,14 @@ case "$COMMAND" in
         ;;
     "list users")
         list_users
+        ;;
+    "change pat")
+        if [[ -z "$3" ]]; then
+            echo "Erro: Nome de usuário não especificado."
+            show_help
+            exit 1
+        fi
+        change_user_pat "$3"
         ;;
     *)
         echo "Erro: Comando inválido."
