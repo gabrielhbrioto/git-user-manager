@@ -183,7 +183,10 @@ function change_user_pat {
         exit 1
     fi
 
-    # Adiciona as informações ao arquivo de configuração
+    # Remove o usuário do arquivo
+    sed -i "/^$username /d" "$CONFIG_FILE"
+
+    # Adiciona as novas informações ao arquivo de configuração
     echo "$username $email $password" >> "$CONFIG_FILE"
     encrypt_file "$CONFIG_FILE" "$ENCRYPTED_CONFIG_FILE"
     echo "PAT do '$username' alterado com sucesso!"
