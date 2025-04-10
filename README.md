@@ -44,6 +44,23 @@ Bem-vindo ao **Git User Manager**, um script Bash simples e eficiente para geren
 
 ---
 
+## 🗑️ Desinstalação
+
+Se você apenas clonou o repositório, basta excluir a pasta:
+
+```
+rm -rf git-user-manager
+```
+Se você movimentou o script para um diretório do sistema (`como /usr/local/bin`) para uso global, remova o arquivo com:
+
+```
+sudo rm /usr/local/bin/git_user_manager
+```
+
+Pronto! O `git_user_manager` foi completamente removido do seu sistema.
+
+---
+
 ## ⚙️ Uso
 
 O Git User Manager possui diversos comandos para gerenciar seus usuários. Veja a lista completa:

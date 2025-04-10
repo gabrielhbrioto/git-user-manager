@@ -48,6 +48,7 @@ function decrypt_file {
     # Testa se a senha está correta antes de descriptografar
     if ! openssl enc -aes-256-cbc -pbkdf2 -d -in "$encrypted_file" -k "$ENCRYPTION_KEY" -out "$decrypted_file" 2>/dev/null; then
         echo "Erro: Senha incorreta"
+        rm -f $TEMP_SESSION_FILE
         rm -f "$decrypted_file" # Remove o arquivo original
         exit 1
     fi
@@ -280,6 +281,13 @@ function remove_user {
 
     # Remove o usuário do arquivo
     sed -i "/^$username /d" "$CONFIG_FILE"
+    local current_username=$(git config --global user.name)
+
+    if [[ "$username" = "$current_username" ]]; then
+        echo "sinal"
+        git config --global --unset user.name
+        git config --global --unset user.email
+    fi
 
     # Recriptografa o arquivo
     encrypt_file "$CONFIG_FILE" "$ENCRYPTED_CONFIG_FILE"
