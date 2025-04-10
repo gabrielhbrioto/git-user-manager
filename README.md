@@ -34,12 +34,12 @@ Bem-vindo ao **Git User Manager**, um script Bash simples e eficiente para geren
 
 2. Conceda permissão de execução ao script:
    ```bash
-   chmod +x git_user_manager.sh
+   chmod +x git-user-manager.sh
    ```
 
 3. Opcional: Mova o script para um diretório do sistema para uso global:
    ```bash
-   sudo mv git_user_manager.sh /usr/local/bin/git_user_manager
+   sudo mv git-user-manager.sh /usr/local/bin/git_user_manager
    ```
 
 ---
