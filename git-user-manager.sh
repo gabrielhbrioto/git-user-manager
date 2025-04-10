@@ -181,10 +181,11 @@ function alter_user {
     # Atualiza o arquivo .git-credentials
     echo "Atualizando o arquivo .git-credentials..."
     echo "https://${username}:${PASSWORD}@github.com" > "$GIT_CREDENTIALS_FILE"
-    encrypt_file "$GIT_CREDENTIALS_FILE" "$ENCRYPTED_CREDENTIALS_FILE"
 
     # Atualiza o helper do Git para usar o arquivo .git-credentials
     git config --global credential.helper store
+
+    #encrypt_file "$GIT_CREDENTIALS_FILE" "$ENCRYPTED_CREDENTIALS_FILE"
 
     echo "Usuário Git alterado para:"
     echo "  Nome: $username"
